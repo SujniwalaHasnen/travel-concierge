@@ -1,0 +1,49 @@
+[0:00 — HOOK]
+Planning an international trip usually means spending hours looking at flight sites, checking weather trends, and sorting out complex visa requirements. I created the Travel Concierge agent to automate all of these tasks in a single, secure conversational interface.
+
+(pause)
+
+[0:20 — WHAT IT IS]
+This agent belongs to the Concierge Agents track. It acts as an end-to-end trip planner that integrates safety checks, multi-agent delegation, and local system integration through Model Context Protocol tools.
+
+(pause)
+
+[0:40 — SHOW THE BANNER]
+(show assets/cover_page_banner.png)
+As you can see on the banner, the Travel Concierge combines multi-agent itineraries, local weather and flights tooling, and security checks into a seamless planning assistant.
+
+(pause)
+
+[1:00 — ARCHITECTURE]
+(show assets/architecture_diagram.png)
+Let us walk through the architecture of how a user request flows through our system.
+First, the request enters the START node and immediately goes into the security checkpoint.
+The security checkpoint scrubs high-risk PII like emails, phones, and passport numbers, and verifies that the prompt does not contain injection attacks or violate our budget cap.
+If a security event is triggered, the flow is redirected to the security error node which blocks the session.
+Otherwise, the clean query is forwarded to the main orchestrator agent.
+The orchestrator agent delegates tasks to two sub-agents: travel_planner for itinerary building, and visa_assistant for document checklists.
+Both sub-agents execute their tasks using a shared local MCP Server that provides flight, hotel, and visa checklist tools.
+Once the sub-agent responses are synthesized by the orchestrator, the flow hits the review itinerary node where the system pauses for a human-in-the-loop approval.
+If the traveler requests changes, it routes back to the orchestrator to revise the trip; otherwise, once approved, it outputs the finalized itinerary.
+
+(pause)
+
+[2:00 — LIVE DEMO]
+(switch to playground at localhost:18081)
+Now let us watch the agent in action within the ADK local playground UI.
+I will enter our first sample test case: "I want to plan a 5-day trip to Tokyo, Japan from July 10 to July 15. My budget is $3000. I hold an Indian passport."
+(pause)
+Notice how the orchestrator immediately coordinates the workflow. It first delegates to travel_planner, which calls the MCP tools to compare flights and hotels and fetch weather details for Tokyo. Then, it calls visa_assistant to find Japanese visa entry rules.
+The system compiles these reports and presents a beautiful Tokyo travel package, and pauses for our feedback.
+If I type "change flight to premium", it goes back to the orchestrator, updates the flights comparison, and asks for review again. Once I reply "approve", the workflow completes and finalizes the itinerary.
+In our second test, if I input a request to plan a trip to a blacklisted country like North Korea, or specify an over-budget amount like $60000, you can see the security checkpoint immediately blocks the transaction, logs a warning, and prevents the LLM from executing.
+
+(pause)
+
+[3:00 — SECURITY & MCP]
+Our security checkpoint provides PII scrubbing, injection block, and JSON audit logging on stderr to track system safety. The MCP server integrates local python functions via stdio to feed real-time weather, pricing, and visa requirements directly to the sub-agents.
+
+(pause)
+
+[3:30 — IMPACT / CLOSE]
+The Travel Concierge turns hours of fragmented travel research into a simple, secure 2-minute dialogue. It is safe, stateful, integrates local tools, and handles user feedback dynamically to build the perfect vacation. Thank you!
